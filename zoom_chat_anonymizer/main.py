@@ -2,17 +2,17 @@
 Main module.
 """
 from logging import INFO, basicConfig, getLogger
-from os import walk
-from os.path import join
 from pathlib import Path as pathlib_Path
-from subprocess import call
 from sys import stdout
 from typing import AbstractSet, Any, Optional, Sequence
 
 from click import Context, Path, echo, group, option
 
 from zoom_chat_anonymizer import __version__
-from zoom_chat_anonymizer.anonymize_chat import anonymize_chat_internal
+from zoom_chat_anonymizer.logic.anonymize_chat import anonymize_chat_internal
+from zoom_chat_anonymizer.logic.create_html_from_markdown import (
+    create_html_from_markdown_internal,
+)
 
 _LOGGER = getLogger(__name__)
 basicConfig(
@@ -20,6 +20,12 @@ basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
     level=INFO,
     stream=stdout,
+)
+_INPUT_FOLDER_OPTION = option(
+    "--input_folder",
+    "-i",
+    default="",
+    type=Path(file_okay=False, exists=True, resolve_path=True),
 )
 
 
@@ -51,14 +57,6 @@ def main_group() -> None:
 
     :return:
     """
-
-
-_INPUT_FOLDER_OPTION = option(
-    "--input_folder",
-    "-i",
-    default="",
-    type=Path(file_okay=False, exists=True, resolve_path=True),
-)
 
 
 @option("--tutor", "-t", multiple=True, default=None)
@@ -94,19 +92,7 @@ def create_html_from_markdown(input_folder: str, bib_file: Optional[str]) -> Non
     Create HTML files from the markdown files.
     """
     folder_path = pathlib_Path(input_folder)
-    _LOGGER.info(f"Processing folder {folder_path}")
-    for markdown_file in folder_path.glob("**/*.md"):
-        html_file = str(markdown_file).replace(".md", ".html")
-        command_to_execute = [
-            "pandoc",
-            str(markdown_file),
-            "-o",
-            html_file,
-        ]
-        if bib_file is not None:
-            command_to_execute += ["--bibliography", bib_file]
-        _LOGGER.info(f"Converting {markdown_file} to {html_file}")
-        call(command_to_execute)
+    create_html_from_markdown_internal(bib_file, folder_path)
 
 
 if __name__ == "__main__":

@@ -1,15 +1,0 @@
-<p><strong>14:24:38</strong>, <em>Student 0</em>: But tools that help reverse engineering by developing normal high level programming language code from assembly might be already in use. I guess making j<em>j</em>(j+1)*(j+1) % 4 == 0 out of assembly might be possible right? Then is it still used and is it by making the condition more and more complex that no fast interpretation is possible?</p>
-<p><strong>14:28:43</strong>, <em>Patrick Stöckle</em>: <span class="citation" data-cites="Student">@Student</span> 0:</p>
-<blockquote>
-<p>But tools that help reverse engineering by developing normal high level programming language code from assembly might be already in use. I guess making j<em>j</em>(j+1)*(j+1) % 4 == 0 out of assembly might be possible right?</p>
-</blockquote>
-<p>Right, there are tools to do that.</p>
-<blockquote>
-<p>Then is it still used and is it by making the condition more and more complex that no fast interpretation is possible?</p>
-</blockquote>
-<p>I don’t understand exactly the questions, but yes, we try to use predicates which are complex <em>enough</em> so that the used interpreter or compiler cannot detect them as <em>opaque predicates</em> automatically.</p>
-<p><strong>15:25:23</strong>, <em>Student 1</em>: Is self modifying Code used at all if it triggers IDS?</p>
-<p><strong>15:25:41</strong>, <em>Student 0</em>: Can obfuscation also applied in open source softwares?</p>
-<p><strong>15:30:43</strong>, <em>Patrick Stöckle</em>: <span class="citation" data-cites="Student">@Student</span> 1: One the one side, not every self-modifying code is triggering the antivirus system. On the other side, if you want to use a software which is protected by the vendor using this technique, you have two options:  1. Exclude the software from the antivirus software.</p>
-<p><strong>15:31:00</strong>, <em>Patrick Stöckle</em>: 2. Or you do not use the software</p>
-<p><strong>15:32:45</strong>, <em>Patrick Stöckle</em>: <span class="citation" data-cites="Student">@Student</span> 0: The question is why we should do this. Any attacker who wanted to know how our software is working would look into our openly accessible code instead of the obfuscated machine code/statements.</p>
