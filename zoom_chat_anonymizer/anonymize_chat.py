@@ -6,7 +6,7 @@ from functools import partial
 from os import linesep
 from pathlib import Path
 from re import compile as re_compile
-from typing import AbstractSet, List, Mapping
+from typing import AbstractSet, List, Mapping, MutableMapping
 
 from zoom_chat_anonymizer.classes.message import Message
 
@@ -74,7 +74,7 @@ def _anonymize_single_file(
         content = f_read.readlines()
     content = [line.strip() for line in content]
     messages: List[Message] = []
-    author_to_anonymised_name = {}
+    author_to_anonymised_name: MutableMapping[str, str] = {}
     find_name_in_dict = partial(
         _find_name_in_dict_with_tutors,
         tutors=tutors,
@@ -130,7 +130,7 @@ def _anonymize_single_file(
             else:
                 was_the_last_message_a_private_message = True
         else:
-            if not was_the_last_message_a_private_message:
+            if not was_the_last_message_a_private_message and last_message is not None:
                 last_message.text += linesep + line
     for message in messages:
         message.sanitize()

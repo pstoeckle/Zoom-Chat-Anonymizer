@@ -56,7 +56,7 @@ def main_group() -> None:
     "--output_folder", "-o", default="out", type=Path(file_okay=False, writable=True)
 )
 @main_group.command()
-def anonymize_chat(input_folder: str, output_folder: str, tutor: Sequence[str]) -> None:
+def anonymize_zoom_chats(input_folder: str, output_folder: str, tutor: Sequence[str]) -> None:
     """
     Anonymize Zoom chats.
     """

@@ -24,3 +24,5 @@ EvaluationData
 __pycache__
 .idea
 .vscode
+**/cobertura.xml
+**/mypy.xml
