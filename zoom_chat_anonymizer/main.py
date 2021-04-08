@@ -2,12 +2,14 @@
 Main module.
 """
 from logging import INFO, basicConfig, getLogger
-from sys import platform, stdout
-from typing import Any, List, Optional, Sequence
+from pathlib import Path as pathlib_Path
+from sys import stdout
+from typing import AbstractSet, Any, Sequence
 
 from click import Context, Path, echo, group, option
 
 from zoom_chat_anonymizer import __version__
+from zoom_chat_anonymizer.anonymize_chat import anonymize_chat_internal
 
 _LOGGER = getLogger(__name__)
 basicConfig(
@@ -46,6 +48,22 @@ def main_group() -> None:
 
     :return:
     """
+
+
+@option("--tutor", "-t", multiple=True, default=None)
+@option("--input_folder", "-i", default="", type=Path(file_okay=False, exists=True))
+@option(
+    "--output_folder", "-o", default="out", type=Path(file_okay=False, writable=True)
+)
+@main_group.command()
+def anonymize_chat(input_folder: str, output_folder: str, tutor: Sequence[str]) -> None:
+    """
+    Anonymize Zoom chats.
+    """
+    input_folder_path = pathlib_Path(input_folder)
+    output_folder_path = pathlib_Path(output_folder)
+    tutor_set: AbstractSet[str] = frozenset(t.lower() for t in tutor)
+    anonymize_chat_internal(input_folder_path, output_folder_path, tutor_set)
 
 
 if __name__ == "__main__":
