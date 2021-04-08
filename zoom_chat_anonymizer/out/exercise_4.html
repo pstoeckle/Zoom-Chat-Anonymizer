@@ -1,0 +1,33 @@
+<p><strong>14:22:09</strong>, <em>Student 0</em>: 4.1a) Why does obfuscation only protect against MATE attackers? If someone reverse engineers a protocol, doesn’t that make MITM attacks easier?</p>
+<p><strong>14:23:57</strong>, <em>Student 0</em>: Yes thank you</p>
+<p><strong>14:36:19</strong>, <em>Student 1</em>: just from a functionality point of view: you write code test whether the code does waht it is supposed to do then obfuscate it and then test again if the functionality is still given? Or do you only test the code after the obfuscation?</p>
+<p><strong>14:37:43</strong>, <em>Student 2</em>: <span class="citation" data-cites="Student">@Student</span> 1: Well, I would say you should test the version you ship out to customers. If that’s the obfuscated version, then that’s the one you should test, especially since we want to test whether obfuscated software undermines the stability/functionality of the software.</p>
+<p><strong>14:38:31</strong>, <em>Student 3</em>: but wouldn’t a functionality Change after obfuscating the program hint a bug in your obfuscator? I mean in Theory it should create the exact same outcome</p>
+<p><strong>14:38:31</strong>, <em>Student 2</em>: You can also isolate the functionality of the software by testing it BEFORE obfuscation. But again that does not help much if your functionality works fine but after obfuscation it does not.</p>
+<p><strong>14:39:27</strong>, <em>Student 2</em>: <span class="citation" data-cites="Student">@Student</span> 3: Functionality should, theoretically, NOT change. Defining “functional equivalence” is tough, I think. But usually it is in terms of same inputs == same outputs.</p>
+<p><strong>14:40:03</strong>, <em>Student 2</em>: Or did I? :)</p>
+<p><strong>14:40:23</strong>, <em>Student 1</em>: yes thanks</p>
+<p><strong>14:41:08</strong>, <em>Student 4</em>: where did that | operator in the last slide come from? I’ve mistaken with the binary or operator in C</p>
+<p><strong>14:41:19</strong>, <em>Student 3</em>: is virtualization a common Approach? Does every cpu support virtualization by default</p>
+<p><strong>14:42:28</strong>, <em>Student 2</em>: <span class="citation" data-cites="Student">@Student</span> 4: I’ll relay that to Sebastian.</p>
+<p><strong>14:43:18</strong>, <em>Student 2</em>: <span class="citation" data-cites="Student">@Student</span> 3: I think it is, because in this case, you are creating a new instruction set altogether which does not have standard. Effectively, you are forcing the attacker to understand your instruction sets.</p>
+<p><strong>14:44:10</strong>, <em>Student 2</em>: But, in my opinion, runtime analysis of the program bypasses all of that because at the end the instructions will have to be translated to the underlying architecture (e.g., AMD)</p>
+<p><strong>14:44:49</strong>, <em>Student 2</em>: So, just run the program and monitor, for example, the system/API calls it makes. Or even the instructions if you have to go that low-level.</p>
+<p><strong>14:44:56</strong>, <em>Student 3</em>: so Dumping the process from Memory would most likely get rid of virtualized instructions, unless they are re-encrypted after execution?</p>
+<p><strong>14:45:40</strong>, <em>Patrick Stöckle</em>: <span class="citation" data-cites="Student">@Student</span> 4: In this formula, <br /><span class="math display">|</span><br /> was denoting the <code>is divisible by</code> operator. <a href="https://en.wikipedia.org/wiki/Divisor">https://en.wikipedia.org/wiki/Divisor</a></p>
+<p><strong>14:46:00</strong>, <em>Student 2</em>: <span class="citation" data-cites="Student">@Student</span> 3: depends on how and when the virtualized instructions are translated, I think. If it is Student 3ust-in-Time compilation, then maybe not.</p>
+<p><strong>14:47:12</strong>, <em>Student 4</em>: thanks!</p>
+<p><strong>14:47:33</strong>, <em>Student 2</em>: <span class="citation" data-cites="Student">@Student</span> 3: That is: in memory you’ll have an instruction like “my_move register_1, 5” in memory which still needs to be translated to e.g. mov eax, 5</p>
+<p><strong>14:47:56</strong>, <em>Student 2</em>: Runtime analysis (i.e., right before or after the instruction has been executed) should bypass that.</p>
+<p><strong>14:48:22</strong>, <em>Patrick Stöckle</em>: <span class="citation" data-cites="Student">@Student</span> 4: <br /><span class="math display">3|<em>x</em> * (<em>x</em> + 1) * (<em>x</em> + 2), ∀<em>x</em> ∈ <em>Z</em> ⇔ <em>x</em> * (<em>x</em> + 1) * (<em>x</em> + 2)<em>m</em><em>o</em><em>d</em>3 ≡ 0, ∀<em>x</em> ∈ ℤ</span><br /></p>
+<p><strong>14:49:20</strong>, <em>Student 3</em>: yeah i guess you could also emulate the execution with something like the unicorn engine and analyze it? single stepping every instruction or hooking vm_exit (i think vmp uses it?) sounds like a hussle</p>
+<p><strong>14:50:58</strong>, <em>Student 2</em>: <span class="citation" data-cites="Student">@Student</span> 3: Well, the more sophisticated the obfuscation, the more sophisticated/annoying the RE. :)</p>
+<p><strong>14:53:51</strong>, <em>Student 5</em>: this looks like a very long exercise task. Could a task this long occur in the exam?</p>
+<p><strong>14:54:19</strong>, <em>Student 5</em>: regarding the virtualization obfuscation</p>
+<p><strong>14:55:11</strong>, <em>Student 2</em>: <span class="citation" data-cites="Student">@Student</span> 5: No, most probably not.</p>
+<p><strong>14:58:39</strong>, <em>Student 6</em>: question: since <code>f2</code> is only 4 slots long, and the 5th sloth in <code>f1</code> and <code>f3</code> is similar, why can’t the 4th slots in T be <code>0xef</code>? <strong>Answered by Sebastian</strong></p>
+<p><strong>14:58:51</strong>, <em>Student 4</em>: why can’t <code>0xef</code> put in 4?</p>
+<p><strong>14:59:02</strong>, <em>Student 6</em>: some wrong index-names, sorry</p>
+<p><strong>15:00:32</strong>, <em>Student 7</em>: are there compilers/ tools that help optimizing functions for creating such a template? <strong>Answered by Sebastian</strong></p>
+<p><strong>15:01:44</strong>, <em>Student 7</em>: yeah thanks</p>
+<p><strong>15:16:21</strong>, <em>Student 8</em>: is it plausible that a service like ob24 would charge depending on transaction values instead of some kind of monthly rate? <strong>Answered by Patrick</strong></p>

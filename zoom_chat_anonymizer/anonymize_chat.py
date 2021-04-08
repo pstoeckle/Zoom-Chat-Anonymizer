@@ -3,6 +3,7 @@ Copy.
 """
 from datetime import time
 from functools import partial
+from logging import getLogger
 from os import linesep
 from pathlib import Path
 from re import compile as re_compile
@@ -12,6 +13,8 @@ from zoom_chat_anonymizer.classes.message import Message
 
 _PATTERN = re_compile(r"^([0-9:]+)\s+Von\s+(.*) : (.*)$")
 _REFERENCE = re_compile(r"@([^:]+):")
+
+_LOGGER = getLogger(__name__)
 
 
 def anonymize_chat_internal(
@@ -26,12 +29,7 @@ def anonymize_chat_internal(
     """
     if not output_folder_path.is_dir():
         output_folder_path.mkdir()
-    files = [
-        f
-        for f in input_folder_path.iterdir()
-        if f.is_file() and not f.stem.startswith(".")
-    ]
-    for file in files:
+    for file in input_folder_path.glob("**/*.txt"):
         new_file = output_folder_path.joinpath(file.stem + ".md")
         _anonymize_single_file(file, new_file, tutor_set)
 
@@ -70,6 +68,7 @@ def _anonymize_single_file(
     :param output_file:
     :return:
     """
+    _LOGGER.info(f"Processing {input_file}")
     with input_file.open() as f_read:
         content = f_read.readlines()
     content = [line.strip() for line in content]
@@ -99,9 +98,15 @@ def _anonymize_single_file(
             )
             if "(privat)" not in message.author.lower():
                 if message.author.lower() in tutors:
+                    _LOGGER.debug(
+                        f"{message.author} is a tutor. Thus, we will not remove this name."
+                    )
                     message.anonymized_author = message.author
                 else:
                     if message.author.lower() not in author_to_anonymised_name.keys():
+                        _LOGGER.debug(
+                            f"{message.author} has not asked before. Thus, we need a new name."
+                        )
                         author_to_anonymised_name[
                             message.author.lower()
                         ] = "Student {}".format(len(author_to_anonymised_name.keys()))
@@ -128,12 +133,15 @@ def _anonymize_single_file(
                 last_message = message
                 was_the_last_message_a_private_message = False
             else:
+                _LOGGER.debug(f"Ignoring private message {message}")
                 was_the_last_message_a_private_message = True
         else:
             if not was_the_last_message_a_private_message and last_message is not None:
                 last_message.text += linesep + line
     for message in messages:
         message.sanitize()
+    _LOGGER.info(f"Done with {input_file}")
+    _LOGGER.info(f"Writing {output_file}")
     with output_file.open("w") as f_write:
         for message in messages:
             f_write.write(str(message) + linesep + linesep)

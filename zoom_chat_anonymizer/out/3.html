@@ -1,0 +1,43 @@
+<p><strong>14:15:41</strong>, <em>Student 0</em>: yes</p>
+<p><strong>14:15:42</strong>, <em>Student 1</em>: ping</p>
+<p><strong>14:15:42</strong>, <em>Student 2</em>: yes</p>
+<p><strong>14:15:43</strong>, <em>Student 3</em>: yes</p>
+<p><strong>14:15:45</strong>, <em>Student 0</em>: we can hear ou</p>
+<p><strong>14:33:05</strong>, <em>Student 0</em>: So basically she is different than the average profile. So isn’t that the case in which people should pay more attention?</p>
+<p><strong>14:39:15</strong>, <em>Patrick Stöckle</em>: &gt; So basically she is different than the average profile. So isn’t that the case in which people should pay more attention? Yes, people should have paid more intention. This attack showed that even people working for the government or the military in security positions can be tricked by such a flawed profile.</p>
+<p><strong>14:43:25</strong>, <em>Student 4</em>: So one of the biggest cyber security threats is the horniness of computer scientists :D</p>
+<p><strong>14:43:35</strong>, <em>Student 5</em>: :D</p>
+<p><strong>14:44:47</strong>, <em>Student 6</em>: Does somebody know what the Research paper is called? I’d like to read up on this case</p>
+<p><strong>14:46:02</strong>, <em>Student 2</em>: y</p>
+<p><strong>14:46:02</strong>, <em>Student 7</em>: ping</p>
+<p><strong>14:46:03</strong>, <em>Student 0</em>: yes</p>
+<p><strong>14:46:04</strong>, <em>Student 8</em>: yes</p>
+<p><strong>14:48:58</strong>, <em>Student 9</em>: Blackhat Whitepaper: <a href="https://media.blackhat.com/bh-us-10/whitepapers/Ryan/BlackHat-USA-2010-Ryan-Getting-In-Bed-With-Robin-Sage-v1.0.pdf%20Wikipedia:">https://media.blackhat.com/bh-us-10/whitepapers/Ryan/BlackHat-USA-2010-Ryan-Getting-In-Bed-With-Robin-Sage-v1.0.pdf Wikipedia:</a> <a href="https://en.wikipedia.org/wiki/Robin_Sage">https://en.wikipedia.org/wiki/Robin_Sage</a></p>
+<p><strong>15:04:12</strong>, <em>Student 10</em>: Can you give an example of an “attack” that would be mounted by an honest-but-curious user?</p>
+<p><strong>15:05:25</strong>, <em>Patrick Stöckle</em>: &gt; Can you give an example of an “attack” that would be mounted by an honest-but-curious user? An example will be given on the next slide</p>
+<p><strong>15:06:08</strong>, <em>Student 10</em>: Ah, perfect :)</p>
+<p><strong>15:12:01</strong>, <em>Student 11</em>: How can “Man-in-the-middle” be dealth with?</p>
+<p><strong>15:12:22</strong>, <em>Student 11</em>: /prevented</p>
+<p><strong>15:13:12</strong>, <em>Student 12</em>: does https fully prevent mitm attacks?</p>
+<p><strong>15:14:37</strong>, <em>Student 13</em>: can you give an example of how a MATE can intercept bank data ?</p>
+<p><strong>15:15:09</strong>, <em>Student 13</em>: Never mind</p>
+<p><strong>15:17:15</strong>, <em>Student 14</em>: So MATE implies physical access to the victims system? (Or in the case of cloud providers privileged access to the root)</p>
+<p><strong>15:17:57</strong>, <em>Patrick Stöckle</em>: &gt; How can “Man-in-the-middle” be dealth with? Abstractly, you need trust. This can be established, e.g., by root certificates from which you assume they are trustworthy. If an instance, e.g., a server presents you a certificate, it does not tell you anything, but if the certificate was signed authority you trust, then you’re trusting it.</p>
+<p><strong>15:19:30</strong>, <em>Student 6</em>: Timing checks is a common Concept to detect Hypervisors running on a computer</p>
+<p><strong>15:19:39</strong>, <em>Student 8</em>: How MATE eavesdropping is different from side channel attacks?</p>
+<p><strong>15:21:04</strong>, <em>Patrick Stöckle</em>: &gt; does https fully prevent mitm attacks? HTTPS uses Transport Layer Security (TLS) and yes, TLS is designed to fight MITM. In TLS, especially the identity of the server is verified using certificates signed by trusted authorities. For more information about TLS, we refer to the network security lecture by Professor Carle</p>
+<p><strong>15:21:19</strong>, <em>Student 15</em>: Does cloud infrastructure become less secure than on premise because of the MATE attack ?</p>
+<p><strong>15:23:20</strong>, <em>Patrick Stöckle</em>: &gt; So MATE implies physical access to the victims system? (Or in the case of cloud providers privileged access to the root) MATE does not imply physical access. It describe that the attacker can do anything with the software he/she wants, e.g., reverse engineering it, manipulate parts, repackage it, etc.</p>
+<p><strong>15:23:47</strong>, <em>Patrick Stöckle</em>: &gt; How MATE eavesdropping is different from side channel attacks?</p>
+<p><strong>15:24:11</strong>, <em>Student 8</em>: Thanks</p>
+<p><strong>15:27:07</strong>, <em>Patrick Stöckle</em>: &gt; How MATE eavesdropping is different from side channel attacks? There are intersections between MATE eavesdropping and the side channel attack perspective, but they are not the same. An attacker executing a side-channel attack does not have necessarily to have access to our system or the software we are deploying.</p>
+<p><strong>15:32:07</strong>, <em>Patrick Stöckle</em>: &gt; Does cloud infrastructure become less secure than on premise because of the MATE attack ? In some aspects, yes: if you deploy your server to AWS or GCM, your files are stored on their systems. Thus, also potential private keys or certificates are lying somewhere on their systems. They’re maybe encrypted, but at some point they have to be used. At least at this point in time, they exist in a non-encrypted state and they could be read.</p>
+<p><strong>15:35:10</strong>, <em>Student 16</em>: but isn’t this a universal Problem. We have to decrypt it at some Point and if the attacker intercepts at this specific time, Nothing is really “secure”?</p>
+<p><strong>15:41:18</strong>, <em>Student 17</em>: Concerning Attack trees: On each layer, how do I know whether all or just one node has to be fulfilled?</p>
+<p><strong>15:41:19</strong>, <em>Student 9</em>: Is it worth performing Certificate Pinning to counter MITM attacks?</p>
+<p><strong>15:43:11</strong>, <em>Student 2</em>: i think he means graphically when looking at a tree</p>
+<p><strong>15:43:25</strong>, <em>Student 18</em>: through the dot as far as I understood</p>
+<p><strong>15:45:02</strong>, <em>Patrick Stöckle</em>: It depends on the syntax: In our case, the dot implies AND and without dot it’s OR</p>
+<p><strong>15:45:27</strong>, <em>Patrick Stöckle</em>: There are different syntaxes for ATs out there</p>
+<p><strong>15:48:55</strong>, <em>Student 19</em>: but isn’t this a universal Problem. We have to decrypt it at some Point and if the attacker intercepts at this specific time, Nothing is really “secure”? &gt; What I wanted to motivate here is the following: On premise: Your keys and certificates are stored on your machines. An attacker has to have access to the machine to read it→ not very likely. In the cloud: These files are stored somewhere on the machine of cloud provider. Let’s assume they are encrypted. Nevertheless, they have to be used at some point. Thus, the could provider has to know how to decrypt them to use them. Therefore, the cloud provider has — potentially — all information to decrypt your files and use them.</p>
+<p><strong>15:52:12</strong>, <em>Patrick Stöckle</em>: &gt; Is it worth performing Certificate Pinning to counter MITM attacks? I’m not an expert for SSL/TLS. Therefore, I would recommend to ask this question in the network security lecture. The first thing I found was this article stating that it is not that useful: <a href="https://security.stackexchange.com/questions/29988/what-is-certificate-pinning#29990">https://security.stackexchange.com/questions/29988/what-is-certificate-pinning#29990</a></p>
