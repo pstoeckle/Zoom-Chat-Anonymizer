@@ -54,8 +54,7 @@ def _print_version(ctx: Context, _: Any, value: Any) -> None:
 )
 def main_group() -> None:
     """
-
-    :return:
+    Helpful script to process Zoom chats.
     """
 
 
