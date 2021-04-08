@@ -74,7 +74,7 @@ docker:deploy:
     variables:
         DOCKER_DRIVER: overlay2
         DOCKER_HOST: tcp://docker:2375
-        IMAGE_NAME: $CI_REGISTRY_IMAGE/zoom_chat_anonymizer
+        IMAGE_NAME: $CI_REGISTRY_IMAGE/zoom-chat-anonymizer
     rules:
     -   if: '$CI_COMMIT_BRANCH == "master"'
     -   if: '$CI_COMMIT_BRANCH == "development"'
