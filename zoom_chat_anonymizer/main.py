@@ -134,6 +134,9 @@ class ArtemisStudent(object):
 @option("--inplace", "-I", is_flag=True, default=False)
 @main_group.command()
 def clean_artemis_file(input_file: str, inplace: bool) -> None:
+    """
+    Clean Artemis JSON.
+    """
     input_file_path = pathlib_Path(input_file)
 
     content: Sequence[ArtemisJSONStudent] = loads(input_file_path.read_text())
@@ -142,9 +145,10 @@ def clean_artemis_file(input_file: str, inplace: bool) -> None:
 
     new_file_path = pathlib_Path(
         input_file.replace(input_file_path.suffix, ".clean.json")
-        if inplace
+        if not inplace
         else input_file
     )
+    _LOGGER.info(f"We have {len(students)} students in Artemis.")
     new_file_path.write_text(dumps(students, indent=4, cls=EnhancedJSONEncoder))
 
 
