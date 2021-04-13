@@ -1,25 +1,20 @@
 """
 Main module.
 """
-from csv import DictReader
-from json import dumps
 from logging import INFO, basicConfig, getLogger
 from pathlib import Path as pathlib_Path
 from sys import stdout
-from typing import AbstractSet, Any, Optional, Sequence, TypedDict
+from typing import AbstractSet, Any, Optional, Sequence
 
 from click import Context, Path, echo, group, option
 
 from zoom_chat_anonymizer import __version__
-from zoom_chat_anonymizer.classes.artemis import MoodleStudent, Student
 from zoom_chat_anonymizer.logic.anonymize_chat import anonymize_chat_internal
-from zoom_chat_anonymizer.logic.clean_artemis_file import (
-    EnhancedJSONEncoder,
-    clean_artemis_file_internal,
-)
+from zoom_chat_anonymizer.logic.clean_artemis_file import clean_artemis_file_internal
 from zoom_chat_anonymizer.logic.create_html_from_markdown import (
     create_html_from_markdown_internal,
 )
+from zoom_chat_anonymizer.logic.sort_moodle_csv import sort_moodle_csv_internal
 
 _LOGGER = getLogger(__name__)
 basicConfig(
@@ -119,26 +114,13 @@ def clean_artemis_file(input_file: str, inplace: bool) -> None:
 
 
 @_INPUT_FILE
-@_INPLACE
 @main_group.command()
-def sort_moodle_csv(input_file: str, inplace: bool) -> None:
+def sort_moodle_csv(input_file: str) -> None:
     """
     Moodle.
     """
     input_file_path = pathlib_Path(input_file)
-    with input_file_path.open(encoding="utf-8-sig") as f_read:
-        students: Sequence[MoodleStudent] = [
-            MoodleStudent.create_from_json(row)
-            for row in DictReader(f_read, delimiter=";")
-        ]
-    students = sorted(students)
-    new_file_path = pathlib_Path(
-        str(input_file_path).replace(input_file_path.suffix, ".clean.json")
-        if not inplace
-        else str(input_file_path)
-    )
-    _LOGGER.info(f"We have {len(students)} students in Moodle.")
-    new_file_path.write_text(dumps(students, indent=4, cls=EnhancedJSONEncoder))
+    sort_moodle_csv_internal(input_file_path)
 
 
 if __name__ == "__main__":
