@@ -58,14 +58,14 @@ class MoodleStudent(Student):
             first_name=json_student["Vorname"],
             last_name=json_student["Nachname"],
             matriculation_number=json_student["Matrikelnummer"],
-            email=json_student["E-Mail-Adresse"],
+            email=json_student["E-Mail-Adresse"],  # type: ignore
         )
 
     def __lt__(self, other: Any) -> bool:
         m_a = int(self.matriculation_number)
         m_b = int(other.matriculation_number)
         if m_a == -1 and m_b == -1:
-            return self.last_name < other.last_name
+            return bool(self.last_name < other.last_name)
         return m_a < m_b
 
 
@@ -91,5 +91,5 @@ class ArtemisStudent(Student):
             email=json_student["email"],
         )
 
-    def __lt__(self, other: "ArtemisStudent"):
+    def __lt__(self, other: "ArtemisStudent")-> bool:
         return self.id < other.id

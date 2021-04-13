@@ -5,7 +5,7 @@ from dataclasses import asdict, is_dataclass
 from json import JSONEncoder, dumps, loads
 from logging import getLogger
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence
 
 from zoom_chat_anonymizer.classes.artemis import ArtemisJSONStudent, ArtemisStudent
 
@@ -17,7 +17,7 @@ class EnhancedJSONEncoder(JSONEncoder):
     JSON.
     """
 
-    def default(self, o):
+    def default(self, o: Any) -> Any:
         """
 
         :param o:

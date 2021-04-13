@@ -21,7 +21,7 @@ def sort_moodle_csv_internal(input_file_path: Path) -> None:
     """
     with input_file_path.open(encoding="utf-8-sig") as f_read:
         students: Sequence[MoodleStudent] = [
-            MoodleStudent.create_from_json(row)
+            MoodleStudent.create_from_json(row) # type: ignore
             for row in DictReader(f_read, delimiter=";")
         ]
     students = sorted(students)
