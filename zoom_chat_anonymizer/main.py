@@ -1,16 +1,22 @@
 """
 Main module.
 """
+from csv import DictReader
+from json import dumps
 from logging import INFO, basicConfig, getLogger
 from pathlib import Path as pathlib_Path
 from sys import stdout
-from typing import AbstractSet, Any, Optional, Sequence
+from typing import AbstractSet, Any, Optional, Sequence, TypedDict
 
 from click import Context, Path, echo, group, option
 
 from zoom_chat_anonymizer import __version__
+from zoom_chat_anonymizer.classes.artemis import MoodleStudent, Student
 from zoom_chat_anonymizer.logic.anonymize_chat import anonymize_chat_internal
-from zoom_chat_anonymizer.logic.clean_artemis_file import clean_artemis_file_internal
+from zoom_chat_anonymizer.logic.clean_artemis_file import (
+    EnhancedJSONEncoder,
+    clean_artemis_file_internal,
+)
 from zoom_chat_anonymizer.logic.create_html_from_markdown import (
     create_html_from_markdown_internal,
 )
@@ -95,14 +101,44 @@ def create_html_from_markdown(input_folder: str, bib_file: Optional[str]) -> Non
     create_html_from_markdown_internal(bib_file, folder_path)
 
 
-@option("--input_file", "-i", type=Path(dir_okay=False, resolve_path=True, exists=True))
-@option("--inplace", "-I", is_flag=True, default=False)
+_INPUT_FILE = option(
+    "--input_file", "-i", type=Path(dir_okay=False, resolve_path=True, exists=True)
+)
+
+_INPLACE = option("--inplace", "-I", is_flag=True, default=False)
+
+
+@_INPUT_FILE
+@_INPLACE
 @main_group.command()
 def clean_artemis_file(input_file: str, inplace: bool) -> None:
     """
     Clean Artemis JSON.
     """
     clean_artemis_file_internal(inplace, pathlib_Path(input_file))
+
+
+@_INPUT_FILE
+@_INPLACE
+@main_group.command()
+def sort_moodle_csv(input_file: str, inplace: bool) -> None:
+    """
+    Moodle.
+    """
+    input_file_path = pathlib_Path(input_file)
+    with input_file_path.open(encoding="utf-8-sig") as f_read:
+        students: Sequence[MoodleStudent] = [
+            MoodleStudent.create_from_json(row)
+            for row in DictReader(f_read, delimiter=";")
+        ]
+    students = sorted(students)
+    new_file_path = pathlib_Path(
+        str(input_file_path).replace(input_file_path.suffix, ".clean.json")
+        if not inplace
+        else str(input_file_path)
+    )
+    _LOGGER.info(f"We have {len(students)} students in Moodle.")
+    new_file_path.write_text(dumps(students, indent=4, cls=EnhancedJSONEncoder))
 
 
 if __name__ == "__main__":
