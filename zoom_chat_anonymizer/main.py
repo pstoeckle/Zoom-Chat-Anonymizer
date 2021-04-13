@@ -1,10 +1,12 @@
 """
 Main module.
 """
+from dataclasses import asdict, dataclass, is_dataclass
+from json import JSONEncoder, dumps, loads
 from logging import INFO, basicConfig, getLogger
 from pathlib import Path as pathlib_Path
 from sys import stdout
-from typing import AbstractSet, Any, Optional, Sequence
+from typing import AbstractSet, Any, Mapping, Optional, Sequence, TypedDict
 
 from click import Context, Path, echo, group, option
 
@@ -92,6 +94,58 @@ def create_html_from_markdown(input_folder: str, bib_file: Optional[str]) -> Non
     """
     folder_path = pathlib_Path(input_folder)
     create_html_from_markdown_internal(bib_file, folder_path)
+
+
+class EnhancedJSONEncoder(JSONEncoder):
+    def default(self, o):
+        if is_dataclass(o):
+            return asdict(o)
+        return super().default(o)
+
+
+class ArtemisJSONStudent(TypedDict):
+    id: int
+    firstName: str
+    lastName: str
+    email: str
+
+
+@dataclass(frozen=True)
+class ArtemisStudent(object):
+    id: int
+    first_name: str
+    last_name: str
+    email: str
+
+    @staticmethod
+    def create_from_json(json_student: ArtemisJSONStudent) -> "ArtemisStudent":
+        return ArtemisStudent(
+            id=json_student["id"],
+            first_name=json_student["firstName"],
+            last_name=json_student["lastName"],
+            email=json_student["email"],
+        )
+
+    def __lt__(self, other: "ArtemisStudent"):
+        return self.id < other.id
+
+
+@option("--input_file", "-i", type=Path(dir_okay=False, resolve_path=True, exists=True))
+@option("--inplace", "-I", is_flag=True, default=False)
+@main_group.command()
+def clean_artemis_file(input_file: str, inplace: bool) -> None:
+    input_file_path = pathlib_Path(input_file)
+
+    content: Sequence[ArtemisJSONStudent] = loads(input_file_path.read_text())
+    students = [ArtemisStudent.create_from_json(a) for a in content]
+    students = sorted(students)
+
+    new_file_path = pathlib_Path(
+        input_file.replace(input_file_path.suffix, ".clean.json")
+        if inplace
+        else input_file
+    )
+    new_file_path.write_text(dumps(students, indent=4, cls=EnhancedJSONEncoder))
 
 
 if __name__ == "__main__":
