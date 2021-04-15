@@ -91,5 +91,5 @@ class ArtemisStudent(Student):
             email=json_student["email"],
         )
 
-    def __lt__(self, other: "ArtemisStudent")-> bool:
+    def __lt__(self, other: "ArtemisStudent") -> bool:
         return self.id < other.id

@@ -59,7 +59,13 @@ def main_group() -> None:
     Helpful script to process Zoom chats.
     """
 
-
+@option("--starting-time", "-s", default="14:15")
+@option(
+    "--pause-file",
+    "-p",
+    type=Path(dir_okay=False, resolve_path=True, exists=True),
+    default=None,
+)
 @option("--tutor", "-t", multiple=True, default=None)
 @_INPUT_FOLDER_OPTION
 @option(
@@ -70,15 +76,20 @@ def main_group() -> None:
 )
 @main_group.command()
 def anonymize_zoom_chats(
-    input_folder: str, output_folder: str, tutor: Sequence[str]
+    input_folder: str,
+    output_folder: str,
+    tutor: Sequence[str],
+    pause_file: Optional[str],
+    starting_time: str
 ) -> None:
     """
     Anonymize Zoom chats.
     """
     input_folder_path = pathlib_Path(input_folder)
     output_folder_path = pathlib_Path(output_folder)
+    pause_file_path = None if pause_file is None else pathlib_Path(pause_file)
     tutor_set: AbstractSet[str] = frozenset(t.lower() for t in tutor)
-    anonymize_chat_internal(input_folder_path, output_folder_path, tutor_set)
+    anonymize_chat_internal(input_folder_path, output_folder_path, tutor_set, pause_file_path, starting_time)
 
 
 @_INPUT_FOLDER_OPTION

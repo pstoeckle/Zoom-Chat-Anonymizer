@@ -1,14 +1,25 @@
 """
 Copy.
 """
-from datetime import time
+from dataclasses import dataclass
+from datetime import datetime, time, timedelta
 from functools import partial
+from json import loads
 from logging import getLogger
 from os import linesep
 from pathlib import Path
 from re import DOTALL
 from re import compile as re_compile
-from typing import AbstractSet, List, Mapping, MutableMapping, Pattern
+from typing import (
+    AbstractSet,
+    List,
+    Mapping,
+    MutableMapping,
+    Optional,
+    Pattern,
+    Sequence,
+    TypedDict,
+)
 
 from zoom_chat_anonymizer.classes.message import Message
 
@@ -20,21 +31,61 @@ _STAR_SPACE_AFTER: Pattern[str] = re_compile(r" +\* *\n")
 _LOGGER = getLogger(__name__)
 
 
+@dataclass(frozen=True)
+class Pause(object):
+    """
+    Pause.
+    """
+
+    from_time: time
+    to_time: time
+
+    @property
+    def duration(self) -> timedelta:
+        return datetime.combine(
+            date=datetime.now().date(), time=self.to_time
+        ) - datetime.combine(date=datetime.now().date(), time=self.from_time)
+
+
 def anonymize_chat_internal(
-    input_folder_path: Path, output_folder_path: Path, tutor_set: AbstractSet[str]
+    input_folder_path: Path,
+    output_folder_path: Path,
+    tutor_set: AbstractSet[str],
+    pauses_file: Optional[Path],
+    starting_time_string: str,
 ) -> None:
     """
 
+    :param starting_time_string:
+    :param pauses_file:
     :param input_folder_path:
     :param output_folder_path:
     :param tutor_set:
     :return:
     """
+    t = datetime.strptime(starting_time_string, "%H:%M").time()
+    starting_time: timedelta = timedelta(hours=t.hour, minutes=t.minute)
     if not output_folder_path.is_dir():
         output_folder_path.mkdir()
+
+    pauses_object: MutableMapping[str, Sequence[Pause]] = {}
+    if pauses_file is not None:
+        json_pauses = loads(pauses_file.read_text())
+        for key in json_pauses.keys():
+            current_pauses: Sequence[Mapping[str, str]] = json_pauses[key]
+            current_pauses = [
+                {
+                    att: datetime.strptime(p[att], "%H:%M").time()
+                    for att in ["from_time", "to_time"]
+                }
+                for p in current_pauses
+            ]
+            pauses_object[key] = [Pause(**p) for p in current_pauses]
+
     for file in input_folder_path.glob("**/*.txt"):
         new_file = output_folder_path.joinpath(file.stem + ".md")
-        _anonymize_single_file(file, new_file, tutor_set)
+        pauses = pauses_object[file.stem] if file.stem in pauses_object else []
+        _anonymize_single_file(file, new_file, tutor_set, pauses, starting_time)
 
 
 def _find_name_in_dict_with_tutors(
@@ -70,10 +121,16 @@ def _process_line(line: str) -> str:
 
 
 def _anonymize_single_file(
-    input_file: Path, output_file: Path, tutors: AbstractSet[str]
+    input_file: Path,
+    output_file: Path,
+    tutors: AbstractSet[str],
+    pauses: Sequence[Pause],
+    starting_time: timedelta,
 ) -> None:
     """
 
+    :param starting_time:
+    :param pauses:
     :param tutors:
     :param input_file:
     :param output_file:
@@ -152,8 +209,21 @@ def _anonymize_single_file(
                 last_message.text += linesep + line
     for message in messages:
         message.sanitize()
+
+    for message in messages:
+
+        current_time = (
+            datetime.combine(date=datetime.now().date(), time=message.current_time)
+            - starting_time
+        )
+        for pause in pauses:
+            if message.current_time > pause.from_time:
+                current_time = current_time - pause.duration
+        message.current_time = current_time
+
     _LOGGER.info(f"Done with {input_file}")
     _LOGGER.info(f"Writing {output_file}")
+
     with output_file.open("w") as f_write:
         for message in messages:
             f_write.write(str(message) + linesep + linesep)
