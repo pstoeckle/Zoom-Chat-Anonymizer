@@ -1,7 +1,6 @@
 """
 Copy.
 """
-from dataclasses import dataclass
 from datetime import datetime, time, timedelta
 from functools import partial
 from json import loads
@@ -18,10 +17,10 @@ from typing import (
     Optional,
     Pattern,
     Sequence,
-    TypedDict,
 )
 
 from zoom_chat_anonymizer.classes.message import Message
+from zoom_chat_anonymizer.classes.pause import Pause
 
 _PATTERN = re_compile(r"^([0-9:]+)\s+Von\s+(.*)\s+an\s+(.*) : (.*)$", DOTALL)
 _REFERENCE = re_compile(r"@([^:]+):")
@@ -29,22 +28,6 @@ _QUOTE_PATTERN: Pattern[str] = re_compile(r" ? ?>(.*) ")
 _STAR_SPACE_BEFORE: Pattern[str] = re_compile(r"\n\* +")
 _STAR_SPACE_AFTER: Pattern[str] = re_compile(r" +\* *\n")
 _LOGGER = getLogger(__name__)
-
-
-@dataclass(frozen=True)
-class Pause(object):
-    """
-    Pause.
-    """
-
-    from_time: time
-    to_time: time
-
-    @property
-    def duration(self) -> timedelta:
-        return datetime.combine(
-            date=datetime.now().date(), time=self.to_time
-        ) - datetime.combine(date=datetime.now().date(), time=self.from_time)
 
 
 def anonymize_chat_internal(
@@ -68,6 +51,15 @@ def anonymize_chat_internal(
     if not output_folder_path.is_dir():
         output_folder_path.mkdir()
 
+    pauses_object = _parse_pauses_file(pauses_file)
+
+    for file in input_folder_path.glob("**/*.txt"):
+        new_file = output_folder_path.joinpath(file.stem + ".md")
+        pauses = pauses_object[file.stem] if file.stem in pauses_object else []
+        _anonymize_single_file(file, new_file, tutor_set, pauses, starting_time)
+
+
+def _parse_pauses_file(pauses_file: Path) -> Mapping[str, Sequence[Pause]]:
     pauses_object: MutableMapping[str, Sequence[Pause]] = {}
     if pauses_file is not None:
         json_pauses = loads(pauses_file.read_text())
@@ -81,11 +73,7 @@ def anonymize_chat_internal(
                 for p in current_pauses
             ]
             pauses_object[key] = [Pause(**p) for p in current_pauses]
-
-    for file in input_folder_path.glob("**/*.txt"):
-        new_file = output_folder_path.joinpath(file.stem + ".md")
-        pauses = pauses_object[file.stem] if file.stem in pauses_object else []
-        _anonymize_single_file(file, new_file, tutor_set, pauses, starting_time)
+    return pauses_object
 
 
 def _find_name_in_dict_with_tutors(
@@ -209,17 +197,7 @@ def _anonymize_single_file(
                 last_message.text += linesep + line
     for message in messages:
         message.sanitize()
-
-    for message in messages:
-
-        current_time = (
-            datetime.combine(date=datetime.now().date(), time=message.current_time)
-            - starting_time
-        )
-        for pause in pauses:
-            if message.current_time > pause.from_time:
-                current_time = current_time - pause.duration
-        message.current_time = current_time
+        message.make_time_relative(pauses, starting_time)
 
     _LOGGER.info(f"Done with {input_file}")
     _LOGGER.info(f"Writing {output_file}")
