@@ -10,9 +10,11 @@ from click import Context, Path, echo, group, option
 
 from zoom_chat_anonymizer import __version__
 from zoom_chat_anonymizer.logic.anonymize_chat import anonymize_chat_internal
+from zoom_chat_anonymizer.logic.clean_artemis_file import clean_artemis_file_internal
 from zoom_chat_anonymizer.logic.create_html_from_markdown import (
     create_html_from_markdown_internal,
 )
+from zoom_chat_anonymizer.logic.sort_moodle_csv import sort_moodle_csv_internal
 
 _LOGGER = getLogger(__name__)
 basicConfig(
@@ -57,7 +59,13 @@ def main_group() -> None:
     Helpful script to process Zoom chats.
     """
 
-
+@option("--starting-time", "-s", default="14:15")
+@option(
+    "--pause-file",
+    "-p",
+    type=Path(dir_okay=False, resolve_path=True, exists=True),
+    default=None,
+)
 @option("--tutor", "-t", multiple=True, default=None)
 @_INPUT_FOLDER_OPTION
 @option(
@@ -68,15 +76,20 @@ def main_group() -> None:
 )
 @main_group.command()
 def anonymize_zoom_chats(
-    input_folder: str, output_folder: str, tutor: Sequence[str]
+    input_folder: str,
+    output_folder: str,
+    tutor: Sequence[str],
+    pause_file: Optional[str],
+    starting_time: str
 ) -> None:
     """
     Anonymize Zoom chats.
     """
     input_folder_path = pathlib_Path(input_folder)
     output_folder_path = pathlib_Path(output_folder)
+    pause_file_path = None if pause_file is None else pathlib_Path(pause_file)
     tutor_set: AbstractSet[str] = frozenset(t.lower() for t in tutor)
-    anonymize_chat_internal(input_folder_path, output_folder_path, tutor_set)
+    anonymize_chat_internal(input_folder_path, output_folder_path, tutor_set, pause_file_path, starting_time)
 
 
 @_INPUT_FOLDER_OPTION
@@ -92,6 +105,33 @@ def create_html_from_markdown(input_folder: str, bib_file: Optional[str]) -> Non
     """
     folder_path = pathlib_Path(input_folder)
     create_html_from_markdown_internal(bib_file, folder_path)
+
+
+_INPUT_FILE = option(
+    "--input_file", "-i", type=Path(dir_okay=False, resolve_path=True, exists=True)
+)
+
+_INPLACE = option("--inplace", "-I", is_flag=True, default=False)
+
+
+@_INPUT_FILE
+@_INPLACE
+@main_group.command()
+def clean_artemis_file(input_file: str, inplace: bool) -> None:
+    """
+    Clean Artemis JSON.
+    """
+    clean_artemis_file_internal(inplace, pathlib_Path(input_file))
+
+
+@_INPUT_FILE
+@main_group.command()
+def sort_moodle_csv(input_file: str) -> None:
+    """
+    Moodle.
+    """
+    input_file_path = pathlib_Path(input_file)
+    sort_moodle_csv_internal(input_file_path)
 
 
 if __name__ == "__main__":
