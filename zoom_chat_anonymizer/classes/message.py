@@ -48,4 +48,4 @@ class Message(object):
         for pause in pauses:
             if self.current_time > pause.from_time:
                 current_time = current_time - pause.duration
-        self.current_time = current_time
+        self.current_time = current_time # type: ignore

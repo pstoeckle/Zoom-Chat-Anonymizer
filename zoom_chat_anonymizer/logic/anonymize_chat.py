@@ -59,20 +59,20 @@ def anonymize_chat_internal(
         _anonymize_single_file(file, new_file, tutor_set, pauses, starting_time)
 
 
-def _parse_pauses_file(pauses_file: Path) -> Mapping[str, Sequence[Pause]]:
+def _parse_pauses_file(pauses_file: Optional[Path]) -> Mapping[str, Sequence[Pause]]:
     pauses_object: MutableMapping[str, Sequence[Pause]] = {}
     if pauses_file is not None:
         json_pauses = loads(pauses_file.read_text())
         for key in json_pauses.keys():
             current_pauses: Sequence[Mapping[str, str]] = json_pauses[key]
-            current_pauses = [
+            current_pauses_with_times = [
                 {
                     att: datetime.strptime(p[att], "%H:%M").time()
                     for att in ["from_time", "to_time"]
                 }
                 for p in current_pauses
             ]
-            pauses_object[key] = [Pause(**p) for p in current_pauses]
+            pauses_object[key] = [Pause(**p) for p in current_pauses_with_times]
     return pauses_object
 
 
