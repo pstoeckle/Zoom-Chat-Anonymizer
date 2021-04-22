@@ -20,7 +20,7 @@ from typing import (
 )
 
 from zoom_chat_anonymizer.classes.message import Message
-from zoom_chat_anonymizer.classes.pause import Pause
+from zoom_chat_anonymizer.classes.pause import Pause, PausesStart
 
 _PATTERN = re_compile(r"^([0-9:]+)\s+Von\s+(.*)\s+an\s+(.*) : (.*)$", DOTALL)
 _REFERENCE = re_compile(r"@([^:]+):")
@@ -39,7 +39,6 @@ def anonymize_chat_internal(
 ) -> None:
     """
 
-    :param starting_time_string:
     :param pauses_file:
     :param input_folder_path:
     :param output_folder_path:
@@ -51,20 +50,25 @@ def anonymize_chat_internal(
     if not output_folder_path.is_dir():
         output_folder_path.mkdir()
 
-    pauses_object = _parse_pauses_file(pauses_file)
+    pauses_object = _parse_pauses_file(pauses_file, starting_time)
 
     for file in input_folder_path.glob("**/*.txt"):
         new_file = output_folder_path.joinpath(file.stem + ".md")
-        pauses = pauses_object[file.stem] if file.stem in pauses_object else []
+        pauses = pauses_object[file.stem] if file.stem in pauses_object else None
         _anonymize_single_file(file, new_file, tutor_set, pauses, starting_time)
 
 
-def _parse_pauses_file(pauses_file: Optional[Path]) -> Mapping[str, Sequence[Pause]]:
-    pauses_object: MutableMapping[str, Sequence[Pause]] = {}
+def _parse_pauses_file(
+    pauses_file: Optional[Path], start_time: timedelta
+) -> Mapping[str, PausesStart]:
+    pauses_object: MutableMapping[str, PausesStart] = {}
     if pauses_file is not None:
         json_pauses = loads(pauses_file.read_text())
         for key in json_pauses.keys():
-            current_pauses: Sequence[Mapping[str, str]] = json_pauses[key]
+            current_pauses_with_start: Mapping[
+                str, Sequence[Mapping[str, str]]
+            ] = json_pauses[key]
+            current_pauses = current_pauses_with_start["pauses"]
             current_pauses_with_times = [
                 {
                     att: datetime.strptime(p[att], "%H:%M").time()
@@ -72,7 +76,15 @@ def _parse_pauses_file(pauses_file: Optional[Path]) -> Mapping[str, Sequence[Pau
                 }
                 for p in current_pauses
             ]
-            pauses_object[key] = [Pause(**p) for p in current_pauses_with_times]
+            if current_pauses_with_start.get("start") is not None:
+                strat = datetime.strptime(
+                    current_pauses_with_start["start"], "%H:%M"
+                ).time()
+            else:
+                strat = start_time
+            pauses_object[key] = PausesStart(
+                start=strat, pauses=[Pause(**p) for p in current_pauses_with_times]
+            )
     return pauses_object
 
 
@@ -112,7 +124,7 @@ def _anonymize_single_file(
     input_file: Path,
     output_file: Path,
     tutors: AbstractSet[str],
-    pauses: Sequence[Pause],
+    pauses: Optional[PausesStart],
     starting_time: timedelta,
 ) -> None:
     """
@@ -125,6 +137,8 @@ def _anonymize_single_file(
     :return:
     """
     _LOGGER.info(f"Processing {input_file}")
+    if pauses is not None:
+        starting_time = pauses.start
     with input_file.open() as f_read:
         content = f_read.readlines()
     content = [_process_line(line) for line in content]
@@ -197,7 +211,9 @@ def _anonymize_single_file(
                 last_message.text += linesep + line
     for message in messages:
         message.sanitize()
-        message.make_time_relative(pauses, starting_time)
+        message.make_time_relative(
+            pauses.pauses if pauses is not None else [], starting_time
+        )
 
     _LOGGER.info(f"Done with {input_file}")
     _LOGGER.info(f"Writing {output_file}")
