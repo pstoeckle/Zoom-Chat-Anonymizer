@@ -16,7 +16,7 @@ from typing import (
     MutableMapping,
     Optional,
     Pattern,
-    Sequence,
+    Sequence, Union,
 )
 
 from zoom_chat_anonymizer.classes.message import Message
@@ -66,9 +66,9 @@ def _parse_pauses_file(
         json_pauses = loads(pauses_file.read_text())
         for key in json_pauses.keys():
             current_pauses_with_start: Mapping[
-                str, Sequence[Mapping[str, str]]
+                str, Union[str, Sequence[Mapping[str, str]]]
             ] = json_pauses[key]
-            current_pauses = current_pauses_with_start["pauses"]
+            current_pauses: Sequence[Mapping[str, str]] = current_pauses_with_start["pauses"] # type: ignore
             current_pauses_with_times = [
                 {
                     att: datetime.strptime(p[att], "%H:%M").time()
@@ -78,10 +78,11 @@ def _parse_pauses_file(
             ]
             strat: timedelta
             if current_pauses_with_start.get("start") is not None:
+                start_string : str = current_pauses_with_start["start"] # type: ignore
                 t = datetime.strptime(
-                    current_pauses_with_start["start"], "%H:%M"
+                        start_string, "%H:%M"
                 ).time()
-                strat: timedelta = timedelta(hours=t.hour, minutes=t.minute)
+                strat = timedelta(hours=t.hour, minutes=t.minute)
             else:
                 strat = start_time
             pauses_object[key] = PausesStart(
