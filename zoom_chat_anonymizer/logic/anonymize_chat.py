@@ -76,10 +76,12 @@ def _parse_pauses_file(
                 }
                 for p in current_pauses
             ]
+            strat: timedelta
             if current_pauses_with_start.get("start") is not None:
-                strat = datetime.strptime(
+                t = datetime.strptime(
                     current_pauses_with_start["start"], "%H:%M"
                 ).time()
+                strat: timedelta = timedelta(hours=t.hour, minutes=t.minute)
             else:
                 strat = start_time
             pauses_object[key] = PausesStart(
@@ -212,7 +214,7 @@ def _anonymize_single_file(
     for message in messages:
         message.sanitize()
         message.make_time_relative(
-            pauses.pauses if pauses is not None else [], starting_time
+            pauses.pauses if pauses is not None else [], starting_time=starting_time
         )
 
     _LOGGER.info(f"Done with {input_file}")
