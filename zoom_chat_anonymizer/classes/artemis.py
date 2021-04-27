@@ -84,6 +84,14 @@ class ArtemisStudent(Student):
         :param json_student:
         :return:
         """
+        if json_student.get("lastName") is None:
+            # PS: LMU exception ...
+            return ArtemisStudent(
+                id=json_student["id"],
+                first_name=json_student["firstName"].split(" ")[0],
+                last_name=json_student["firstName"].split(" ")[-1],
+                email=json_student["email"],
+            )
         return ArtemisStudent(
             id=json_student["id"],
             first_name=json_student["firstName"],
