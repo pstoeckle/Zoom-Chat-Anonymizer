@@ -19,10 +19,12 @@ def sort_moodle_csv_internal(input_file_path: Path) -> None:
     :param input_file_path:
     :return:
     """
+    text = input_file_path.read_text(encoding="utf-8-sig")
+    delimiter = "," if text.count(",") > text.count(";") else ";"
     with input_file_path.open(encoding="utf-8-sig") as f_read:
         students: Sequence[MoodleStudent] = [
-            MoodleStudent.create_from_json(row) # type: ignore
-            for row in DictReader(f_read, delimiter=";")
+            MoodleStudent.create_from_json(row)  # type: ignore
+            for row in DictReader(f_read, delimiter=delimiter)
         ]
     students = sorted(students)
     new_file_path = Path(
