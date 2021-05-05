@@ -2,12 +2,10 @@
 Main module.
 """
 from logging import INFO, basicConfig, getLogger
-from os import linesep
 from pathlib import Path as pathlib_Path
-from subprocess import call
 from sys import stdout
-from typing import AbstractSet, Any, MutableSequence, Optional, Sequence
-from os import remove
+from typing import AbstractSet, Any, Optional, Sequence
+
 from click import Context, Path, echo, group, option
 
 from zoom_chat_anonymizer import __version__
@@ -15,6 +13,9 @@ from zoom_chat_anonymizer.logic.anonymize_chat import anonymize_chat_internal
 from zoom_chat_anonymizer.logic.clean_artemis_file import clean_artemis_file_internal
 from zoom_chat_anonymizer.logic.create_html_from_markdown import (
     create_html_from_markdown_internal,
+)
+from zoom_chat_anonymizer.logic.create_pdf_from_markdown import (
+    create_pdf_from_markdown_internal,
 )
 from zoom_chat_anonymizer.logic.sort_moodle_csv import sort_moodle_csv_internal
 
@@ -176,60 +177,9 @@ def create_pdf_from_markdown(
     markdown_paths = (
         [] if markdown_file is None else [pathlib_Path(m) for m in markdown_file]
     )
-    tex_paths: MutableSequence[pathlib_Path] = []
-
-    for markdown_path in markdown_paths:
-        _LOGGER.info(f"Translating {markdown_path} into LaTex...")
-        tex_path = markdown_path.parent.joinpath(markdown_path.stem + ".tex")
-        call(
-            [
-                "pandoc",
-                str(markdown_path),
-                "--to",
-                "latex",
-                "--no-highlight",
-                "-o",
-                str(tex_path),
-            ]
-        )
-        tex_paths.append(tex_path)
-        _LOGGER.info(f"Done!")
-    output_tex_path = output_path.parent.joinpath(output_path.stem + ".tex")
-    _LOGGER.info(f"Writing {output_tex_path}...")
-    with output_tex_path.open("w") as f_read:
-        f_read.write(
-            r"\providecommand{\mysheetnumber}{" + str(sheet_number) + "}" + linesep
-        )
-        f_read.write(r"\providecommand{\mysheettitle}{" + str(title) + "}" + linesep)
-        f_read.write(latex_path.read_text())
-
-        f_read.write(r"\begin{document}" + linesep)
-        for tex_path in tex_paths:
-            f_read.write(r"\input{" + str(tex_path) + "}" + linesep)
-        f_read.write(r"\end{document}")
-    _LOGGER.info("... done!")
-    _LOGGER.info(f"Translating {output_tex_path} into PDF...")
-    call(
-        [
-            "pdflatex",
-            f"-output-directory={output_path.parent}",
-            str(output_tex_path),
-        ]
+    create_pdf_from_markdown_internal(
+        clean_up, latex_path, markdown_paths, output_path, sheet_number, title
     )
-    call(
-        [
-            "pdflatex",
-            f"-output-directory={output_path.parent}",
-            str(output_tex_path),
-        ]
-    )
-    _LOGGER.info("... done!")
-    if clean_up:
-        _LOGGER.info("Removing intermediate files.")
-        for tex_path in tex_paths:
-            remove(tex_path)
-        remove(output_tex_path)
-        _LOGGER.info("... done!")
 
 
 if __name__ == "__main__":
