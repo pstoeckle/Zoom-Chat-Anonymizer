@@ -150,7 +150,7 @@ def sort_moodle_csv(input_file: str) -> None:
     "--latex-header",
     "-l",
     type=Path(exists=True, dir_okay=False, resolve_path=True),
-    default=None,
+    default='',
 )
 @option(
     "--markdown-file",
@@ -165,7 +165,7 @@ def sort_moodle_csv(input_file: str) -> None:
 @main_group.command()
 def create_pdf_from_markdown(
     markdown_file: Optional[Sequence[str]],
-    latex_header: Optional[str],
+    latex_header: str,
     output_file: str,
     sheet_number: int,
     title: str,
@@ -176,7 +176,7 @@ def create_pdf_from_markdown(
     """
     title = title.replace("&", r"\&")
     output_path = pathlib_Path(output_file)
-    latex_path = None if latex_header is None else pathlib_Path(latex_header)
+    latex_path = pathlib_Path(latex_header)
     markdown_paths = (
         [] if markdown_file is None else [pathlib_Path(m) for m in markdown_file]
     )

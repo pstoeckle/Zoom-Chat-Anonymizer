@@ -13,7 +13,7 @@ _LOGGER = getLogger(__name__)
 
 def create_pdf_from_markdown_internal(
     clean_up: bool,
-    latex_path: Optional[Path],
+    latex_path: Path,
     markdown_paths: Sequence[Path],
     output_path: Path,
     sheet_number: int,
