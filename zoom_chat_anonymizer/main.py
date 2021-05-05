@@ -171,6 +171,9 @@ def create_pdf_from_markdown(
     title: str,
     clean_up: bool,
 ) -> None:
+    """
+    Use the markdown description of the exercises to create a PDF.
+    """
     title = title.replace("&", r"\&")
     output_path = pathlib_Path(output_file)
     latex_path = None if latex_header is None else pathlib_Path(latex_header)

@@ -19,6 +19,16 @@ def create_pdf_from_markdown_internal(
     sheet_number: int,
     title: str,
 ) -> None:
+    """
+
+    :param clean_up:
+    :param latex_path:
+    :param markdown_paths:
+    :param output_path:
+    :param sheet_number:
+    :param title:
+    :return:
+    """
     tex_paths: MutableSequence[Path] = []
     for markdown_path in markdown_paths:
         _LOGGER.info(f"Translating {markdown_path} into LaTex...")
