@@ -2,10 +2,12 @@
 Main module.
 """
 from logging import INFO, basicConfig, getLogger
+from os import linesep
 from pathlib import Path as pathlib_Path
+from subprocess import call
 from sys import stdout
-from typing import AbstractSet, Any, Optional, Sequence
-
+from typing import AbstractSet, Any, MutableSequence, Optional, Sequence
+from os import remove
 from click import Context, Path, echo, group, option
 
 from zoom_chat_anonymizer import __version__
@@ -59,6 +61,7 @@ def main_group() -> None:
     Helpful script to process Zoom chats.
     """
 
+
 @option("--starting-time", "-s", default="14:15")
 @option(
     "--pause-file",
@@ -80,7 +83,7 @@ def anonymize_zoom_chats(
     output_folder: str,
     tutor: Sequence[str],
     pause_file: Optional[str],
-    starting_time: str
+    starting_time: str,
 ) -> None:
     """
     Anonymize Zoom chats.
@@ -89,7 +92,9 @@ def anonymize_zoom_chats(
     output_folder_path = pathlib_Path(output_folder)
     pause_file_path = None if pause_file is None else pathlib_Path(pause_file)
     tutor_set: AbstractSet[str] = frozenset(t.lower() for t in tutor)
-    anonymize_chat_internal(input_folder_path, output_folder_path, tutor_set, pause_file_path, starting_time)
+    anonymize_chat_internal(
+        input_folder_path, output_folder_path, tutor_set, pause_file_path, starting_time
+    )
 
 
 @_INPUT_FOLDER_OPTION
@@ -132,6 +137,99 @@ def sort_moodle_csv(input_file: str) -> None:
     """
     input_file_path = pathlib_Path(input_file)
     sort_moodle_csv_internal(input_file_path)
+
+
+@option(
+    "--output-file",
+    "-o",
+    type=Path(dir_okay=False, resolve_path=True),
+    default="test.pdf",
+)
+@option(
+    "--latex-header",
+    "-l",
+    type=Path(exists=True, dir_okay=False, resolve_path=True),
+    default=None,
+)
+@option(
+    "--markdown-file",
+    "-m",
+    multiple=True,
+    default=None,
+    type=Path(exists=True, dir_okay=False, resolve_path=True),
+)
+@option("--sheet-number", "-n", type=int, prompt=True)
+@option("--title", "-t", prompt=True)
+@option("--clean-up", "-c", is_flag=True, default=False)
+@main_group.command()
+def create_pdf_from_markdown(
+    markdown_file: Optional[Sequence[str]],
+    latex_header: Optional[str],
+    output_file: str,
+    sheet_number: int,
+    title: str,
+    clean_up: bool,
+) -> None:
+    title = title.replace("&", r"\&")
+    output_path = pathlib_Path(output_file)
+    latex_path = None if latex_header is None else pathlib_Path(latex_header)
+    markdown_paths = (
+        [] if markdown_file is None else [pathlib_Path(m) for m in markdown_file]
+    )
+    tex_paths: MutableSequence[pathlib_Path] = []
+
+    for markdown_path in markdown_paths:
+        _LOGGER.info(f"Translating {markdown_path} into LaTex...")
+        tex_path = markdown_path.parent.joinpath(markdown_path.stem + ".tex")
+        call(
+            [
+                "pandoc",
+                str(markdown_path),
+                "--to",
+                "latex",
+                "--no-highlight",
+                "-o",
+                str(tex_path),
+            ]
+        )
+        tex_paths.append(tex_path)
+        _LOGGER.info(f"Done!")
+    output_tex_path = output_path.parent.joinpath(output_path.stem + ".tex")
+    _LOGGER.info(f"Writing {output_tex_path}...")
+    with output_tex_path.open("w") as f_read:
+        f_read.write(
+            r"\providecommand{\mysheetnumber}{" + str(sheet_number) + "}" + linesep
+        )
+        f_read.write(r"\providecommand{\mysheettitle}{" + str(title) + "}" + linesep)
+        f_read.write(latex_path.read_text())
+
+        f_read.write(r"\begin{document}" + linesep)
+        for tex_path in tex_paths:
+            f_read.write(r"\input{" + str(tex_path) + "}" + linesep)
+        f_read.write(r"\end{document}")
+    _LOGGER.info("... done!")
+    _LOGGER.info(f"Translating {output_tex_path} into PDF...")
+    call(
+        [
+            "pdflatex",
+            f"-output-directory={output_path.parent}",
+            str(output_tex_path),
+        ]
+    )
+    call(
+        [
+            "pdflatex",
+            f"-output-directory={output_path.parent}",
+            str(output_tex_path),
+        ]
+    )
+    _LOGGER.info("... done!")
+    if clean_up:
+        _LOGGER.info("Removing intermediate files.")
+        for tex_path in tex_paths:
+            remove(tex_path)
+        remove(output_tex_path)
+        _LOGGER.info("... done!")
 
 
 if __name__ == "__main__":
