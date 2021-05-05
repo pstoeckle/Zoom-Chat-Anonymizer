@@ -14,6 +14,9 @@ from zoom_chat_anonymizer.logic.clean_artemis_file import clean_artemis_file_int
 from zoom_chat_anonymizer.logic.create_html_from_markdown import (
     create_html_from_markdown_internal,
 )
+from zoom_chat_anonymizer.logic.create_pdf_from_markdown import (
+    create_pdf_from_markdown_internal,
+)
 from zoom_chat_anonymizer.logic.sort_moodle_csv import sort_moodle_csv_internal
 
 _LOGGER = getLogger(__name__)
@@ -59,6 +62,7 @@ def main_group() -> None:
     Helpful script to process Zoom chats.
     """
 
+
 @option("--starting-time", "-s", default="14:15")
 @option(
     "--pause-file",
@@ -80,7 +84,7 @@ def anonymize_zoom_chats(
     output_folder: str,
     tutor: Sequence[str],
     pause_file: Optional[str],
-    starting_time: str
+    starting_time: str,
 ) -> None:
     """
     Anonymize Zoom chats.
@@ -89,7 +93,9 @@ def anonymize_zoom_chats(
     output_folder_path = pathlib_Path(output_folder)
     pause_file_path = None if pause_file is None else pathlib_Path(pause_file)
     tutor_set: AbstractSet[str] = frozenset(t.lower() for t in tutor)
-    anonymize_chat_internal(input_folder_path, output_folder_path, tutor_set, pause_file_path, starting_time)
+    anonymize_chat_internal(
+        input_folder_path, output_folder_path, tutor_set, pause_file_path, starting_time
+    )
 
 
 @_INPUT_FOLDER_OPTION
@@ -132,6 +138,51 @@ def sort_moodle_csv(input_file: str) -> None:
     """
     input_file_path = pathlib_Path(input_file)
     sort_moodle_csv_internal(input_file_path)
+
+
+@option(
+    "--output-file",
+    "-o",
+    type=Path(dir_okay=False, resolve_path=True),
+    default="test.pdf",
+)
+@option(
+    "--latex-header",
+    "-l",
+    type=Path(exists=True, dir_okay=False, resolve_path=True),
+    default='',
+)
+@option(
+    "--markdown-file",
+    "-m",
+    multiple=True,
+    default=None,
+    type=Path(exists=True, dir_okay=False, resolve_path=True),
+)
+@option("--sheet-number", "-n", type=int, prompt=True)
+@option("--title", "-t", prompt=True)
+@option("--clean-up", "-c", is_flag=True, default=False)
+@main_group.command()
+def create_pdf_from_markdown(
+    markdown_file: Optional[Sequence[str]],
+    latex_header: str,
+    output_file: str,
+    sheet_number: int,
+    title: str,
+    clean_up: bool,
+) -> None:
+    """
+    Use the markdown description of the exercises to create a PDF.
+    """
+    title = title.replace("&", r"\&")
+    output_path = pathlib_Path(output_file)
+    latex_path = pathlib_Path(latex_header)
+    markdown_paths = (
+        [] if markdown_file is None else [pathlib_Path(m) for m in markdown_file]
+    )
+    create_pdf_from_markdown_internal(
+        clean_up, latex_path, markdown_paths, output_path, sheet_number, title
+    )
 
 
 if __name__ == "__main__":
