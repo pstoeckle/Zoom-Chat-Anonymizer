@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "zoom-chat-anonymizer"
-version = "0.1.5"
+version = "0.1.6"
 description = ""
 authors = ["Patrick Stoeckle <patrick.stoeckle@tum.de>"]
 
