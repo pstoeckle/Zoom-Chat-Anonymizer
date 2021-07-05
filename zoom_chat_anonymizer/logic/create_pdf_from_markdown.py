@@ -62,18 +62,10 @@ def create_pdf_from_markdown_internal(
     _LOGGER.info("... done!")
     _LOGGER.info(f"Translating {output_tex_path} into PDF...")
     call(
-        [
-            "pdflatex",
-            f"-output-directory={output_path.parent}",
-            str(output_tex_path),
-        ]
+        ["pdflatex", f"-output-directory={output_path.parent}", str(output_tex_path),]
     )
     call(
-        [
-            "pdflatex",
-            f"-output-directory={output_path.parent}",
-            str(output_tex_path),
-        ]
+        ["pdflatex", f"-output-directory={output_path.parent}", str(output_tex_path),]
     )
     _LOGGER.info("... done!")
     if clean_up:
@@ -82,3 +74,8 @@ def create_pdf_from_markdown_internal(
             remove(tex_path)
         remove(output_tex_path)
         _LOGGER.info("... done!")
+        for p in output_path.parent.glob(output_path.stem + "*"):
+            if p.suffix.casefold().endswith(".tex"):
+                continue
+            _LOGGER.info(f"Removing {p}")
+            remove(p)
