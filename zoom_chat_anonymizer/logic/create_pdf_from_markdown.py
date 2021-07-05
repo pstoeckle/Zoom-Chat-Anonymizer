@@ -75,7 +75,7 @@ def create_pdf_from_markdown_internal(
         remove(output_tex_path)
         _LOGGER.info("... done!")
         for p in output_path.parent.glob(output_path.stem + "*"):
-            if p.suffix.casefold().endswith(".tex"):
+            if p.suffix.strip().casefold().endswith("pdf"):
                 continue
             _LOGGER.info(f"Removing {p}")
             remove(p)
