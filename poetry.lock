@@ -7,10 +7,10 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [package.extras]
-dev = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "zope.interface", "furo", "sphinx", "pre-commit"]
 docs = ["furo", "sphinx", "zope.interface"]
 tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "zope.interface"]
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six"]
+dev = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "zope.interface", "furo", "sphinx", "pre-commit"]
 
 [[package]]
 name = "bandit"
@@ -21,11 +21,11 @@ optional = false
 python-versions = ">=3.5"
 
 [package.dependencies]
-colorama = {version = ">=0.3.9", markers = "platform_system == \"Windows\""}
-GitPython = ">=1.0.1"
+stevedore = ">=1.20.0"
 PyYAML = ">=5.3.1"
 six = ">=1.10.0"
-stevedore = ">=1.20.0"
+colorama = {version = ">=0.3.9", markers = "platform_system == \"Windows\""}
+GitPython = ">=1.0.1"
 
 [[package]]
 name = "click"
@@ -82,9 +82,9 @@ python-versions = "*"
 
 [package.dependencies]
 bandit = "*"
-flake8 = "*"
 flake8-polyfill = "*"
 pycodestyle = "*"
+flake8 = "*"
 
 [[package]]
 name = "flake8-broken-line"
@@ -146,8 +146,8 @@ optional = false
 python-versions = "*"
 
 [package.dependencies]
-flake8 = ">=3"
 pydocstyle = ">=2.1"
+flake8 = ">=3"
 
 [[package]]
 name = "flake8-eradicate"
@@ -158,9 +158,9 @@ optional = false
 python-versions = ">=3.6,<4.0"
 
 [package.dependencies]
+flake8 = ">=3.5,<4.0"
 attrs = "*"
 eradicate = ">=2.0,<3.0"
-flake8 = ">=3.5,<4.0"
 
 [[package]]
 name = "flake8-gl-codeclimate"
@@ -182,10 +182,10 @@ optional = false
 python-versions = "*"
 
 [package.dependencies]
-flake8 = ">=3.3.0"
 importlib-metadata = "*"
-jinja2 = ">=2.9.0"
 pygments = ">=2.2.0"
+jinja2 = ">=2.9.0"
+flake8 = ">=3.3.0"
 
 [[package]]
 name = "flake8-isort"
@@ -196,9 +196,9 @@ optional = false
 python-versions = "*"
 
 [package.dependencies]
-flake8 = ">=3.2.1,<4"
-isort = ">=4.3.5,<6"
 testfixtures = ">=6.8.0,<7"
+isort = ">=4.3.5,<6"
+flake8 = ">=3.2.1,<4"
 
 [package.extras]
 test = ["pytest (>=4.0.2,<6)", "toml"]
@@ -242,8 +242,8 @@ optional = false
 python-versions = "*"
 
 [package.dependencies]
-flake8 = ">=3.0.0"
 restructuredtext_lint = "*"
+flake8 = ">=3.0.0"
 
 [[package]]
 name = "flake8-string-format"
@@ -302,9 +302,9 @@ optional = false
 python-versions = ">=3.6,<4.0"
 
 [package.extras]
+colors = ["colorama (>=0.4.3,<0.5.0)"]
 pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
 requirements_deprecated_finder = ["pipreqs", "pip-api"]
-colors = ["colorama (>=0.4.3,<0.5.0)"]
 
 [[package]]
 name = "jinja2"
@@ -329,10 +329,10 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, != 3.4.*"
 
 [package.extras]
+source = ["Cython (>=0.29.7)"]
 cssselect = ["cssselect (>=0.7)"]
 html5 = ["html5lib"]
 htmlsoup = ["beautifulsoup4"]
-source = ["Cython (>=0.29.7)"]
 
 [[package]]
 name = "markupsafe"
@@ -480,9 +480,9 @@ optional = false
 python-versions = "*"
 
 [package.extras]
-build = ["setuptools-git", "wheel", "twine"]
-docs = ["sphinx", "zope.component", "sybil", "twisted", "mock", "django (<2)", "django"]
 test = ["pytest (>=3.6)", "pytest-cov", "pytest-django", "zope.component", "sybil", "twisted", "mock", "django (<2)", "django"]
+docs = ["sphinx", "zope.component", "sybil", "twisted", "mock", "django (<2)", "django"]
+build = ["setuptools-git", "wheel", "twine"]
 
 [[package]]
 name = "typed-ast"

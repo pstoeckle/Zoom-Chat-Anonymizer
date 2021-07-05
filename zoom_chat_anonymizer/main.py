@@ -1,6 +1,7 @@
 """
 Main module.
 """
+from collections import Counter
 from logging import INFO, basicConfig, getLogger
 from pathlib import Path as pathlib_Path
 from sys import stdout
@@ -9,6 +10,7 @@ from typing import AbstractSet, Any, Optional, Sequence
 from click import Context, Path, echo, group, option
 
 from zoom_chat_anonymizer import __version__
+from zoom_chat_anonymizer.classes.artemis import ArtemisStudent
 from zoom_chat_anonymizer.logic.anonymize_chat import anonymize_chat_internal
 from zoom_chat_anonymizer.logic.clean_artemis_file import clean_artemis_file_internal
 from zoom_chat_anonymizer.logic.create_html_from_markdown import (
@@ -150,7 +152,7 @@ def sort_moodle_csv(input_file: str) -> None:
     "--latex-header",
     "-l",
     type=Path(exists=True, dir_okay=False, resolve_path=True),
-    default='',
+    default="",
 )
 @option(
     "--markdown-file",
