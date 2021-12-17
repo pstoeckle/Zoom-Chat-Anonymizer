@@ -19,10 +19,11 @@ python:quality:
     needs: [ ]
     rules: &python-rules
         -   changes:
-                - "zoom_chat_anonymizer/**.py"
-                - .gitlab-ci.yml
+            - "zoom_chat_anonymizer/**.py"
+            - .gitlab-ci.yml
         -   if: '$CI_COMMIT_BRANCH == "master"'
         -   if: '$CI_COMMIT_BRANCH == "development"'
+        -   if: '$CI_COMMIT_TAG'
     script:
         - poetry install
         - poetry run flake8 --exit-zero --format gl-codeclimate --output-file flake8.json zoom_chat_anonymizer
