@@ -6,7 +6,7 @@ authors = ["Patrick Stoeckle <patrick.stoeckle@tum.de>"]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
-click = "^7.1.2"
+typer = "^0.4.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
@@ -31,4 +31,4 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-zoom-chat-anonymizer = 'zoom_chat_anonymizer.main:main_group'
+zoom-chat-anonymizer = 'zoom_chat_anonymizer.main:app'
