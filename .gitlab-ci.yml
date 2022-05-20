@@ -1,6 +1,6 @@
 stages:
 - pre-analysis
-- build
+- package
 - deploy
 
 python:quality:
@@ -31,33 +31,28 @@ python:quality:
         - head -n 1 cobertura.xml
     stage: pre-analysis
 
-python:build:
+python:package:
     artifacts:
         paths:
             - dist
         expire_in: 3 days
-    cache: *python-cache
-    image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
     needs:
-        - python:quality
-    rules: *python-rules
+        - python:test
+    rules: &package-rules
+    -   if: '$CI_COMMIT_TAG'
     script:
         - poetry install --no-dev
         - poetry build
-    stage: build
+    stage: package
 
 python:deploy:
-    cache: *python-cache
-    image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
-    rules:
-    -   if: '$CI_COMMIT_TAG'
+    rules: *package-rules
     script:
         - poetry config repositories.lrz https://gitlab.lrz.de/api/v4/projects/${CI_PROJECT_ID}/packages/pypi
         - poetry publish --repository lrz --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD
     stage: deploy
     needs:
-        - python:build
-
+        - python:package
 
 docker:deploy:
     stage: deploy
@@ -84,10 +79,7 @@ docker:deploy:
     variables:
         DOCKER_DRIVER: overlay2
         DOCKER_HOST: tcp://docker:2375
-        IMAGE_NAME: $CI_REGISTRY_IMAGE/zoom-chat-anonymizer
-    rules:
-    -   if: '$CI_COMMIT_BRANCH == "main"'
-    -   if: '$CI_COMMIT_BRANCH == "development"'
-    -   if: '$CI_COMMIT_TAG'    
+        IMAGE_NAME: $CI_REGISTRY_IMAGE
+    rules: *package-rules
     needs:
-    - python:build
+        - python:package
