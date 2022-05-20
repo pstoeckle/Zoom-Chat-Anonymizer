@@ -53,7 +53,7 @@ python:deploy:
     -   if: '$CI_COMMIT_TAG'
     script:
         - poetry config repositories.lrz https://gitlab.lrz.de/api/v4/projects/${CI_PROJECT_ID}/packages/pypi
-        - poetry publish --repository lrz --username ${REGISTRY_USERNAME} --password ${REGISTRY_PASSWORD}
+        - poetry publish --repository lrz --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD
     stage: deploy
     needs:
         - python:build
@@ -86,7 +86,7 @@ docker:deploy:
         DOCKER_HOST: tcp://docker:2375
         IMAGE_NAME: $CI_REGISTRY_IMAGE/zoom-chat-anonymizer
     rules:
-    -   if: '$CI_COMMIT_BRANCH == "master"'
+    -   if: '$CI_COMMIT_BRANCH == "main"'
     -   if: '$CI_COMMIT_BRANCH == "development"'
     -   if: '$CI_COMMIT_TAG'    
     needs:
