@@ -3,6 +3,13 @@ stages:
 - package
 - deploy
 
+cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+        - ".venv"
+
+image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
+
 python:quality:
     artifacts:
         reports:
