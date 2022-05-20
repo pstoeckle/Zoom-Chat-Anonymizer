@@ -19,14 +19,22 @@ Commands:
 
 ```bash
 $ zoom-chat-anonymizer anonymize-zoom-chats --help
-Usage: zoom-chat-anonymizer anonymize-zoom-chats [OPTIONS]
+Usage: zoom-chat-anonymizer anonymize-zoom-chats [OPTIONS] [INPUT_FOLDER]
 
   Anonymize Zoom chats.
 
+Arguments:
+  [INPUT_FOLDER]  The folder with the chat files.  [default: .]
+
 Options:
-  -o, --output_folder DIRECTORY
-  -i, --input_folder DIRECTORY
-  -t, --tutor TEXT
+  -o, --output-folder DIRECTORY  The script will write the anonymized files in
+                                 this folder.  [default: out]
+  -t, --tutor TEXT               The tutors' names. The script will preserve
+                                 these names in the chat protocol.
+  -p, --pause-file FILE          A JSON file with the pauses made during the
+                                 lecture/tutorial.
+  -s, --starting-time TEXT       The starting time of the lecture/tutorial.
+                                 [default: 14:15]
   --help                         Show this message and exit.
 ```
 
