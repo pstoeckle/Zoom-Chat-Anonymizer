@@ -1,6 +1,6 @@
 stages:
 - pre-analysis
-- build
+- package
 - deploy
 
 python:quality:
@@ -19,44 +19,39 @@ python:quality:
     needs: [ ]
     rules: &python-rules
         -   changes:
-                - "zoom_chat_anonymizer/**.py"
-                - .gitlab-ci.yml
+            - "zoom_chat_anonymizer/**.py"
+            - .gitlab-ci.yml
         -   if: '$CI_COMMIT_BRANCH == "master"'
         -   if: '$CI_COMMIT_BRANCH == "development"'
+        -   if: '$CI_COMMIT_TAG'
     script:
         - poetry install
-        - poetry run flake8 --exit-zero --format gl-codeclimate --output-file flake8.json zoom_chat_anonymizer
         - poetry run mypy --cobertura-xml-report=. --junit-xml=mypy.xml --pretty zoom_chat_anonymizer
         - head -n 1 cobertura.xml
     stage: pre-analysis
 
-python:build:
+python:package:
     artifacts:
         paths:
             - dist
         expire_in: 3 days
-    cache: *python-cache
-    image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
     needs:
         - python:quality
-    rules: *python-rules
+    rules: &package-rules
+    -   if: '$CI_COMMIT_TAG'
     script:
         - poetry install --no-dev
         - poetry build
-    stage: build
+    stage: package
 
 python:deploy:
-    cache: *python-cache
-    image: gitlab.lrz.de:5005/i4/software/docker-images/python3.9-poetry
-    rules:
-        -   if: '$CI_COMMIT_BRANCH == "master"'
+    rules: *package-rules
     script:
-        - poetry config repositories.lrz https://gitlab.lrz.de/api/v4/projects/${PROJECT_ID}/packages/pypi
-        - poetry publish --repository lrz --username ${REGISTRY_USERNAME} --password ${REGISTRY_PASSWORD}
+        - poetry config repositories.lrz https://gitlab.lrz.de/api/v4/projects/${CI_PROJECT_ID}/packages/pypi
+        - poetry publish --repository lrz --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD
     stage: deploy
     needs:
-        - python:build
-
+        - python:package
 
 docker:deploy:
     stage: deploy
@@ -66,7 +61,16 @@ docker:deploy:
     script:
         - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
         - docker pull $IMAGE_NAME:latest || true
-        - docker build --tag $IMAGE_NAME:$CI_COMMIT_SHA --tag $IMAGE_NAME:latest --tag $IMAGE_NAME:$CI_COMMIT_SHORT_SHA --tag $IMAGE_NAME:$CI_COMMIT_REF_NAME .
+        - docker build 
+            --build-arg=COMMIT=$CI_COMMIT_SHA  
+            --build-arg=BRANCH=$CI_COMMIT_BRANCH 
+            --build-arg=COMMIT_SHORT=$CI_COMMIT_SHORT_SHA
+            --build-arg=TAG=$CI_COMMIT_TAG 
+            --tag $IMAGE_NAME:$CI_COMMIT_SHA 
+            --tag $IMAGE_NAME:latest 
+            --tag $IMAGE_NAME:$CI_COMMIT_SHORT_SHA 
+            --tag $IMAGE_NAME:$CI_COMMIT_REF_NAME 
+            .
         - docker push $IMAGE_NAME
     tags:
         - docker
@@ -74,9 +78,7 @@ docker:deploy:
     variables:
         DOCKER_DRIVER: overlay2
         DOCKER_HOST: tcp://docker:2375
-        IMAGE_NAME: $CI_REGISTRY_IMAGE/zoom-chat-anonymizer
-    rules:
-    -   if: '$CI_COMMIT_BRANCH == "master"'
-    -   if: '$CI_COMMIT_BRANCH == "development"'
+        IMAGE_NAME: $CI_REGISTRY_IMAGE
+    rules: *package-rules
     needs:
-    - python:build
+        - python:package

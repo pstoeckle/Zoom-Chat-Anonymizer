@@ -10,7 +10,7 @@ _LOGGER = getLogger(__name__)
 
 
 def create_html_from_markdown_internal(
-    bib_file: Optional[str], folder_path: Path
+    bib_file: Optional[Path], folder_path: Path
 ) -> None:
     """
 
@@ -28,6 +28,6 @@ def create_html_from_markdown_internal(
             html_file,
         ]
         if bib_file is not None:
-            command_to_execute += ["--bibliography", bib_file]
+            command_to_execute += ["--bibliography", str(bib_file)]
         _LOGGER.info(f"Converting {markdown_file} to {html_file}")
         call(command_to_execute)
