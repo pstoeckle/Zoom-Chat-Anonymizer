@@ -60,6 +60,7 @@ _INPUT_FOLDER_OPTION = Argument(
     file_okay=False,
     exists=True,
     resolve_path=True,
+    help="The folder with the chat files.",
 )
 _INPLACE = Option(False, "--inplace", "-I", is_flag=True)
 
@@ -119,12 +120,29 @@ def anonymize_zoom_chats(
         file_okay=False,
         writable=True,
         resolve_path=True,
+        help="The script will write the anonymized files in this folder.",
     ),
-    tutor: List[str] = Option(None, "--tutor", "-t"),
+    tutor: List[str] = Option(
+        None,
+        "--tutor",
+        "-t",
+        help="The tutors' names. The script will preserve these names in the chat protocol.",
+    ),
     pause_file: Optional[Path] = Option(
-        None, "--pause-file", "-p", dir_okay=False, resolve_path=True, exists=True
+        None,
+        "--pause-file",
+        "-p",
+        dir_okay=False,
+        resolve_path=True,
+        exists=True,
+        help="A JSON file with the pauses made during the lecture/tutorial.",
     ),
-    starting_time: str = Option("14:15", "--starting-time", "-s"),
+    starting_time: str = Option(
+        "14:15",
+        "--starting-time",
+        "-s",
+        help="The starting time of the lecture/tutorial.",
+    ),
 ) -> None:
     """
     Anonymize Zoom chats.
