@@ -1,6 +1,9 @@
 """
 Main module.
 """
+import os
+import subprocess
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from logging import INFO, basicConfig, getLogger
 from pathlib import Path
@@ -8,9 +11,9 @@ from re import DOTALL
 from re import compile as re_compile
 from typing import AbstractSet, Any, List, Optional
 
-from click import Context, echo, option
+from click import option
 
-from typer import Argument, Exit, Option, Typer
+from typer import Argument, Context, Exit, Option, Typer, echo
 from zoom_chat_anonymizer import __version__
 from zoom_chat_anonymizer.logic.anonymize_chat import anonymize_chat_internal
 from zoom_chat_anonymizer.logic.clean_artemis_file import clean_artemis_file_internal
@@ -169,6 +172,93 @@ def create_html_from_markdown(
 _INPUT_FILE = option(
     "--input_file", "-i", type=Path(dir_okay=False, resolve_path=True, exists=True)
 )
+
+
+@dataclass(frozen=True)
+class Remote(object):
+    """
+    Remote
+    """
+
+    name: str
+    link: str
+    type: str
+
+
+@dataclass(frozen=True)
+class Submodule(object):
+    """
+    Submodule
+    """
+
+    commit_hash: str
+    path: Path
+    branch: str
+
+
+_WHITE = re_compile(r"\s")
+
+
+@app.command()
+def add_artemis_submodules(
+    submodule_directory: Path = Argument(
+        "exercise",
+        help="The subdirectory with the submodules to add.",
+        file_okay=False,
+        exists=True,
+    )
+) -> None:
+    """
+    Add all submodules.
+    """
+    submodule_output = subprocess.check_output(["git", "submodule", "status"]).decode(
+        "utf8"
+    )
+    submodule_output_lines = submodule_output.split(os.linesep)
+    submodules = [
+        Submodule(
+            commit_hash=(parts := _WHITE.split(lin.strip()))[0],
+            path=Path(parts[1]),
+            branch=parts[2].lstrip("(").rstrip(")"),
+        )
+        for lin in submodule_output_lines
+        if lin != ""
+    ]
+
+    subdirs = [d for d in submodule_directory.iterdir() if d.is_dir()]
+    for subdir in sorted(subdirs):
+        try:
+            existing_submodule = next(s for s in submodules if s.path == subdir)
+            echo(f"There is an existing submodule {existing_submodule} for {subdir}")
+            continue
+        except StopIteration:
+            echo(f"No existing submodule for {subdir}")
+
+        output = subprocess.check_output(
+            ["git", "remote", "-v"], cwd=str(subdir)
+        ).decode("utf8")
+        lines = output.split(os.linesep)
+        remotes = [
+            Remote(name=(parts := _WHITE.split(line))[0], link=parts[1], type=parts[2])
+            for line in lines
+            if line != ""
+        ]
+        try:
+            artemis = next(r for r in remotes if "artemis" in r.name.casefold())
+        except StopIteration:
+            try:
+                artemis = next(
+                    r for r in remotes if "bitbucket.ase.in.tum.de" in r.link.casefold()
+                )
+            except StopIteration:
+                echo(f"We could not find the artemis repo... for {subdir}")
+                raise Exit(1)
+        command = ["git", "submodule", "add", artemis.link, str(subdir)]
+        echo(" ".join(command))
+        result = subprocess.check_call(command)
+        if result != 0:
+            echo("Something went wrong ...")
+            raise Exit(1)
 
 
 def clean_artemis_file(input_file: Path, inplace: bool = _INPLACE) -> None:
