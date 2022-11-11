@@ -1,12 +1,16 @@
 [tool.poetry]
 name = "zoom-chat-anonymizer"
-version = "0.1.8"
+version = "0.1.9"
 description = ""
-authors = ["Patrick Stoeckle <patrick.stoeckle@tum.de>"]
+authors = ["Patrick Stoeckle <patrick.stoeckle@posteo.de>"]
+maintainers = ["Patrick Stöckle <patrick.stoeckle@posteo.de>"]
+readme = "README.md"
+license = "Apache-2.0"
+repository = "https://github.com/pstoeckle/Zoom-Chat-Anonymizer.git"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
-typer = "^0.4.1"
+typer = "^0.7.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"
