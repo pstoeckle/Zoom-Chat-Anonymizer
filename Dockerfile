@@ -1,21 +1,16 @@
 FROM python:3.9-buster
 
-
 ARG COMMIT=""
-ARG COMMIT_SHORT=""
-ARG BRANCH=""
 ARG TAG=""
 
-LABEL author="Patrick Stöckle <patrick.stoeckle@tum.de>"
+LABEL author="Patrick Stöckle <patrick.stoeckle@posteo.de>"
 LABEL edu.tum.i4.mod-python-scripts.commit=${COMMIT}
-LABEL edu.tum.i4.mod-python-scripts.commit-short=${COMMIT_SHORT}
-LABEL edu.tum.i4.mod-python-scripts.branch=${BRANCH}
 LABEL edu.tum.i4.mod-python-scripts.tag=${TAG}
 
 ENV COMMIT=${COMMIT}
-ENV COMMIT_SHORT=${COMMIT_SHORT}
-ENV BRANCH=${BRANCH}
 ENV TAG=${TAG}
+
+ENV PATH="${PATH}:/home/pandoc_user/.local/bin"
 
 WORKDIR /
 
@@ -31,17 +26,10 @@ RUN apt-get update -qq \
     && useradd --create-home --shell /bin/bash pandoc_user
 
 WORKDIR /home/pandoc_user
-
-COPY dist dist
-
-RUN chown pandoc_user dist
-
 USER pandoc_user
 
+COPY --chown=pandoc_user dist dist
+
 RUN pip install --no-cache-dir  dist/*.whl \
-    && rm -rf dist
-
-ENV PATH="${PATH}:/home/pandoc_user/.local/bin"
-
-RUN zoom-chat-anonymizer --version
-
+    && rm -rf dist \
+    && zoom-chat-anonymizer --version
