@@ -1,14 +1,6 @@
 FROM python:3.9-buster
 
-ARG COMMIT=""
-ARG TAG=""
-
 LABEL author="Patrick Stöckle <patrick.stoeckle@posteo.de>"
-LABEL edu.tum.i4.mod-python-scripts.commit=${COMMIT}
-LABEL edu.tum.i4.mod-python-scripts.tag=${TAG}
-
-ENV COMMIT=${COMMIT}
-ENV TAG=${TAG}
 
 ENV PATH="${PATH}:/home/pandoc_user/.local/bin"
 
